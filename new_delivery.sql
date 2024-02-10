@@ -52,6 +52,9 @@ SELECT Warehouse, timestampdiff(hour, `Order date`, `Delivery date`) AS time_to_
 FROM delivery_copy
 Limit 10;
 
+select Customer, avg((`delivery date`, 'dd-mm-yyyy') - format(`order date`, 'dd-mm-yyyy')) as Average_delivery_time
+from delivery_copy
+limit 10;
 
 # 4. Average delivery time across zipsand in each month
 
@@ -64,9 +67,10 @@ order by No_Customers DESC;
 select distinct Warehouse # to confirm how many zipcodes are there.
 from delivery_copy;
 
-
 # 6. If orders increased or decreased each month across zips
 
+
 # 7. Season with fastest deliveries
+
 
 # 8. Warehouse with fastest deliveries
