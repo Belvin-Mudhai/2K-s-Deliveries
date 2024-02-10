@@ -51,3 +51,22 @@ SELECT Warehouse, timestampdiff(hour, `Order date`, `Delivery date`) AS time_to_
 	Customer, Zipcode
 FROM delivery_copy
 Limit 10;
+
+
+# 4. Average delivery time across zipsand in each month
+
+# 5. Warehouse with most orders in each zip
+select Zipcode, Warehouse, COUNT(Customer) as No_Customers
+from delivery_copy
+group by Zipcode, Warehouse
+order by No_Customers DESC;
+
+select distinct Warehouse # to confirm how many zipcodes are there.
+from delivery_copy;
+
+
+# 6. If orders increased or decreased each month across zips
+
+# 7. Season with fastest deliveries
+
+# 8. Warehouse with fastest deliveries
