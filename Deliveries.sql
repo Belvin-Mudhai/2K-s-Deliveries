@@ -1,42 +1,57 @@
 use delivery_db;
 
 DROP table delivtab;
-# loaded the data using import wizard
+-- loaded the data using import wizard
 
-# After loading the data, the analysis begins
+SET SQL_SAFE_UPDATES = 0;
+
+-- After loading the data, the analysis begins
 select * from deliveries limit 10;
 
 /* There is need to change the data types of the date columns to ensure consistency as some of 
 the entries were not really in the datetime type*/
-ALTER TABLE deliveries
-MODIFY COLUMN `Order date` datetime;
 
+-- I'll create a duplicate table first
+CREATE TABLE deliveries_staging
+LIKE deliveries;
 
+INSERT INTO deliveries_staging
+SELECT *
+FROM deliveries;
+
+-- cont
+SELECT * FROM deliveries_staging LIMIT 1;
+
+UPDATE deliveries_staging
+SET `Order date` = STR_TO_DATE(`Order date`, '%m/%d/%Y %H:%i');
+
+UPDATE deliveries_staging
+SET `Delivery date` = STR_TO_DATE(`Delivery date`, '%m/%d/%Y %H:%i');
+
+ALTER TABLE deliveries_staging
+MODIFY COLUMN `Delivery date` DATETIME;
+
+ALTER TABLE deliveries_staging
+MODIFY COLUMN `Order date` DATETIME;
 
 # 1. Zip code with most orders --> 15241 with 919 Orders
 SELECT Zipcode, COUNT(Zipcode) AS The_Counts
-FROM delivery_copy
+FROM deliveries_staging
 GROUP BY Zipcode
 order by The_Counts DESC;
 
 # 2. Ratio of 1-time customers to returning customers
-# One-time customers --> 1751
+-- One-time customers --> 1750
 SELECT COUNT(DISTINCT Customer) AS Number_of_onetimers
-FROM delivery_copy;
+FROM deliveries_staging;
 
-# Non one-time customers --> 7729
+-- Non one-time customers --> 7719
 SELECT COUNT(Customer) - COUNT(DISTINCT Customer) AS Number_of_returnees
-FROM delivery_copy;
-# Ratio is therefore 1:4.4
+FROM deliveries_staging;
+-- Therefore the ratio is 1:4.4
 
 # 3. Average delivery time for one-timers vs returning customers
-# change the order date to turn off the confusion
-ALTER TABLE delivery_copy
-CHANGE `Order date` Order_date DATETIME;
 
-
-/* Getting the differences in time --> unix_timestamp() 
-										timestampdiff()*/
 SELECT Warehouse, timestampdiff(hour, `Order date`, `Delivery date`) AS time_to_delivery,
 	Customer, Zipcode
 FROM delivery_copy
