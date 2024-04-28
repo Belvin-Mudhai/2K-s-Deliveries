@@ -35,12 +35,14 @@ ALTER TABLE deliveries_staging
 MODIFY COLUMN `Order date` DATETIME;
 
 # 1. Zip code with most orders --> 15241 with 919 Orders
+
 SELECT Zipcode, COUNT(Zipcode) AS The_Counts
 FROM deliveries_staging
 GROUP BY Zipcode
-order by The_Counts DESC;
+ORDER BY The_Counts DESC;
 
 # 2. Ratio of 1-time customers to returning customers
+
 -- One-time customers --> 1750
 SELECT COUNT(DISTINCT Customer) AS Number_of_onetimers
 FROM deliveries_staging;
@@ -52,9 +54,9 @@ FROM deliveries_staging;
 
 # 3. Average delivery time for one-timers vs returning customers
 
-SELECT Warehouse, timestampdiff(hour, `Order date`, `Delivery date`) AS time_to_delivery,
+SELECT Warehouse, TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`) AS time_to_delivery,
 	Customer, Zipcode
-FROM delivery_copy
+FROM deliveries_staging
 Limit 10;
 
 select Customer, avg((`delivery date`, 'dd-mm-yyyy') - format(`order date`, 'dd-mm-yyyy')) as Average_delivery_time
