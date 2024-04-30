@@ -93,10 +93,11 @@ GROUP BY Zipcode, `Month`
 ORDER BY 1, 2 ASC;
 
 # 5. Warehouse with most orders in each zip
-select Zipcode, Warehouse, COUNT(Customer) as No_Customers
-from delivery_copy
-group by Zipcode, Warehouse
-order by No_Customers DESC;
+-- select * from deliveries_staging limit 1;
+SELECT Warehouse, Zipcode, COUNT(DISTINCT Customer) AS No_Orders
+FROM deliveries_staging
+GROUP BY Zipcode, Warehouse
+ORDER BY 2, 3 DESC;
 
 select distinct Warehouse # to confirm how many zipcodes are there.
 from delivery_copy;
