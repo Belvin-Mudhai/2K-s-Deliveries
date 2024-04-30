@@ -93,14 +93,11 @@ GROUP BY Zipcode, `Month`
 ORDER BY 1, 2 ASC;
 
 # 5. Warehouse with most orders in each zip
--- select * from deliveries_staging limit 1;
-SELECT Warehouse, Zipcode, COUNT(DISTINCT Customer) AS No_Orders
+
+SELECT Zipcode, Warehouse, COUNT(DISTINCT Customer) AS No_Orders
 FROM deliveries_staging
 GROUP BY Zipcode, Warehouse
-ORDER BY 2, 3 DESC;
-
-select distinct Warehouse # to confirm how many zipcodes are there.
-from delivery_copy;
+ORDER BY 1, 3 DESC;
 
 # 6. If orders increased or decreased each month across zips
 
@@ -109,3 +106,21 @@ from delivery_copy;
 
 
 # 8. Warehouse with fastest deliveries
+
+SELECT Warehouse, AVG(TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`)) AS Deliverytime
+FROM deliveries_staging
+GROUP BY Warehouse
+ORDER BY 2 ASC;
+
+-- Warehouse with fastest deliveries in each zipcode
+SELECT Zipcode, Warehouse, AVG(TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`)) AS Deliverytime
+FROM deliveries_staging
+GROUP BY Warehouse, Zipcode
+ORDER BY 1, 3 ASC;
+
+-- Zipcodes with fastest deliveries
+SELECT Zipcode, AVG(TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`)) AS Deliverytime
+FROM deliveries_staging
+GROUP BY Zipcode
+ORDER BY 1, 2 ASC;
+
