@@ -54,16 +54,33 @@ FROM deliveries_staging;
 
 # 3. Average delivery time for one-timers vs returning customers
 
-SELECT Warehouse, TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`) AS time_to_delivery,
+-- One timers
+WITH delitimec AS(
+SELECT Warehouse, TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`) AS deli_time,
 	Customer, Zipcode
-FROM deliveries_staging
-Limit 10;
+FROM deliveries_staging),
+	visitfreq AS (
+	SELECT Customer, COUNT(Customer) AS visits, AVG(deli_time) AS average_time
+	FROM delitimec
+	GROUP BY Customer)
+SELECT AVG(average_time) AS One_timers_deliery_time
+FROM visitfreq
+WHERE visits = 1;
 
-select Customer, avg((`delivery date`, 'dd-mm-yyyy') - format(`order date`, 'dd-mm-yyyy')) as Average_delivery_time
-from delivery_copy
-limit 10;
+-- Returning Customers
+WITH delitimec AS(
+SELECT Warehouse, TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`) AS deli_time,
+	Customer, Zipcode
+FROM deliveries_staging),
+	visitfreq AS (
+	SELECT Customer, COUNT(Customer) AS visits, AVG(deli_time) AS average_time
+	FROM delitimec
+	GROUP BY Customer)
+SELECT AVG(average_time) AS Ret_customers_delivery_time
+FROM visitfreq
+WHERE visits != 1;
 
-# 4. Average delivery time across zipsand in each month
+# 4. Average delivery time across zips and in each month
 
 # 5. Warehouse with most orders in each zip
 select Zipcode, Warehouse, COUNT(Customer) as No_Customers
