@@ -208,4 +208,3 @@ SELECT Zipcode, AVG(TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`)) AS Deliv
 FROM deliveries_staging
 GROUP BY Zipcode
 ORDER BY 1, 2 ASC;
-
