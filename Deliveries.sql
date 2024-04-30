@@ -103,7 +103,73 @@ ORDER BY 1, 3 DESC;
 
 
 # 7. Season with fastest deliveries
+-- select * from deliveries_staging limit 2;
 
+CREATE TABLE delivery_stage2
+LIKE deliveries_staging;
+
+INSERT INTO delivery_stage2
+SELECT *
+FROM deliveries_staging;
+
+SELECT * FROM delivery_stage2 LIMIT 10;
+
+-- Season orders were made
+ALTER TABLE delivery_stage2
+ADD COLUMN `order_szn` VARCHAR(45) NOT NULL AFTER `Zipcode`;
+
+UPDATE delivery_stage2
+SET order_szn = 'spring'
+WHERE SUBSTRING(`Order date`, 6, 2) > 3 
+	AND SUBSTRING(`Order date`, 6, 2) < 7;
+
+UPDATE delivery_stage2
+SET order_szn = 'summer'
+WHERE SUBSTRING(`Order date`, 6, 2) > 6 
+	AND SUBSTRING(`Order date`, 6, 2) < 10;
+
+UPDATE delivery_stage2
+SET order_szn = 'winter'
+WHERE SUBSTRING(`Order date`, 6, 2) IN (12, 1, 2, 3);
+
+UPDATE delivery_stage2
+SET order_szn = 'fall'
+WHERE SUBSTRING(`Order date`, 6, 2) IN (10, 11);
+
+-- Seasons deliveries were made
+ALTER TABLE delivery_stage2
+ADD COLUMN `deliv_szn` VARCHAR(45) NOT NULL AFTER `order_szn`;
+
+UPDATE delivery_stage2
+SET deliv_szn = 'spring'
+WHERE SUBSTRING(`Order date`, 6, 2) > 3 
+	AND SUBSTRING(`Order date`, 6, 2) < 7;
+
+UPDATE delivery_stage2
+SET deliv_szn = 'summer'
+WHERE SUBSTRING(`Order date`, 6, 2) > 6 
+	AND SUBSTRING(`Order date`, 6, 2) < 10;
+
+UPDATE delivery_stage2
+SET deliv_szn = 'winter'
+WHERE SUBSTRING(`Order date`, 6, 2) IN (12, 1, 2, 3);
+
+UPDATE delivery_stage2
+SET deliv_szn = 'fall'
+WHERE SUBSTRING(`Order date`, 6, 2) IN (10, 11);
+
+SELECT * FROM delivery_stage2 LIMIT 5;
+ 
+-- I'll try to find if all orders were delivered in the same season
+SELECT COUNT(*) AS diff_szns
+FROM delivery_stage2
+WHERE order_szn != deliv_szn;
+
+-- Season with fastest deliveries
+SELECT order_szn, AVG(TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`)) AS Delivery_time
+FROM delivery_stage2
+GROUP BY order_szn
+ORDER BY 2 ASC;
 
 # 8. Warehouse with fastest deliveries
 
