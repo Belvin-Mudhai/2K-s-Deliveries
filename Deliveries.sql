@@ -111,6 +111,15 @@ ORDER BY 1, 3 DESC;
 
 # 6. If orders increased or decreased each month across zips
 
+WITH zip_month_orderc AS(
+SELECT Zipcode, SUBSTRING(`Order date`, 1, 7) AS yearmonth, COUNT(Customer) AS orders
+FROM deliveries_staging
+GROUP BY Zipcode, yearmonth
+ORDER BY 1, 2 ASC)
+SELECT Zipcode, yearmonth, orders, LAG(orders, 1) OVER
+		(PARTITION BY Zipcode ORDER BY yearmonth) AS prev_orders,
+		orders - LAG(orders, 1) OVER (ORDER BY Zipcode) AS orders_diff
+FROM zip_month_orderc;
 
 # 7. Season with fastest deliveries
 -- select * from deliveries_staging limit 2;
