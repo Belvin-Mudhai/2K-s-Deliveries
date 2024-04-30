@@ -36,21 +36,31 @@ MODIFY COLUMN `Order date` DATETIME;
 
 # 1. Zip code with most orders --> 15241 with 919 Orders
 
-SELECT Zipcode, COUNT(Zipcode) AS The_Counts
+SELECT Zipcode, COUNT(Zipcode) AS no_orders
 FROM deliveries_staging
 GROUP BY Zipcode
-ORDER BY The_Counts DESC;
+ORDER BY no_orders DESC;
 
 # 2. Ratio of 1-time customers to returning customers
 
--- One-time customers --> 1750
-SELECT COUNT(DISTINCT Customer) AS Number_of_onetimers
-FROM deliveries_staging;
+-- One-time customers --> 792
+WITH Customer_cte AS(
+SELECT Customer, COUNT(Customer) AS times_ordered
+FROM deliveries_staging
+GROUP BY Customer)
+SELECT COUNT(Customer) AS one_timers
+FROM Customer_cte
+WHERE times_ordered = 1;
 
--- Non one-time customers --> 7719
-SELECT COUNT(Customer) - COUNT(DISTINCT Customer) AS Number_of_returnees
-FROM deliveries_staging;
--- Therefore the ratio is 1:4.4
+-- Returning customers --> 958
+WITH Customer_cte AS(
+SELECT Customer, COUNT(Customer) AS times_ordered
+FROM deliveries_staging
+GROUP BY Customer)
+SELECT COUNT(Customer) AS one_timers
+FROM Customer_cte
+WHERE times_ordered != 1;
+-- Therefore the ratio of one-time to returning cutomers is about 1:1.2
 
 # 3. Average delivery time for one-timers vs returning customers
 
