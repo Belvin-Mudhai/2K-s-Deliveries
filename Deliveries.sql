@@ -82,6 +82,16 @@ WHERE visits != 1;
 
 # 4. Average delivery time across zips and in each month
 
+-- select min(`Order date`), max(`Order date`), min(`Delivery date`), max(`Delivery date`) from deliveries_staging;
+WITH zip_deliveryc AS(
+SELECT Zipcode, TIMESTAMPDIFF(HOUR, `Order date`, `Delivery date`) AS deliver_time,
+		SUBSTRING(`Order date`, 1, 7) AS `Month`
+FROM deliveries_staging)
+SELECT Zipcode, `Month`, AVG(deliver_time) AS monthly_delivery_time
+FROM zip_deliveryc
+GROUP BY Zipcode, `Month`
+ORDER BY 1, 2 ASC;
+
 # 5. Warehouse with most orders in each zip
 select Zipcode, Warehouse, COUNT(Customer) as No_Customers
 from delivery_copy
